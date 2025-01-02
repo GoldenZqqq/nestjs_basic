@@ -1,0 +1,15 @@
+lockfileVersion: 5.4
+
+specifiers:
+  reflect-metadata: ^0.2.2
+
+dependencies:
+  reflect-metadata: registry.npmmirror.com/reflect-metadata/0.2.2
+
+packages:
+
+  registry.npmmirror.com/reflect-metadata/0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/reflect-metadata/-/reflect-metadata-0.2.2.tgz}
+    name: reflect-metadata
+    version: 0.2.2
+    dev: false
