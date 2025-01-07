@@ -49,12 +49,19 @@ function accessorDecorator2(
   console.log("accessorDecorator2")
 }
 /* 参数装饰器 */
-function parameterDecorator1(
+function parameterDecorator4(
   target: any,
   propertyKey: string,
   parameterIndex: number
 ) {
-  console.log("parameterDecorator1", propertyKey) // propertyKey 方法名
+  console.log("parameterDecorator4", propertyKey) // propertyKey 方法名
+}
+function parameterDecorator3(
+  target: any,
+  propertyKey: string,
+  parameterIndex: number
+) {
+  console.log("parameterDecorator3", propertyKey) // propertyKey 方法名
 }
 function parameterDecorator2(
   target: any,
@@ -62,6 +69,13 @@ function parameterDecorator2(
   parameterIndex: number
 ) {
   console.log("parameterDecorator2", propertyKey) // propertyKey 方法名
+}
+function parameterDecorator1(
+  target: any,
+  propertyKey: string,
+  parameterIndex: number
+) {
+  console.log("parameterDecorator1", propertyKey) // propertyKey 方法名
 }
 
 /* ================= start ================= */
@@ -78,6 +92,11 @@ class Example {
   prop: string
   @methodDecorator1
   @methodDecorator2
-  method(@parameterDecorator1 @parameterDecorator2 param: string) {}
+  method(
+    // 如果一个方法有多个参数，参数装饰器会从右向左执行
+    // 一个参数也可能会有多个参数装饰器，这些装饰器也是从右向左执行的
+    @parameterDecorator4 @parameterDecorator3 param1: string,
+    @parameterDecorator2 @parameterDecorator1 param2: string
+  ) {}
 }
 /* ================= end ================= */
