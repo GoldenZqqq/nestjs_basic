@@ -7,9 +7,11 @@ export class Logger {
     // 获取当前的进程ID
     const pid = process.pid
     console.log(
-      `[${clc.green("Nest")}] ${clc.green(pid.toString())}  - ${clc.yellow(
-        timestamp
-      )}     ${clc.green("LOG")} [${clc.yellow(context)}] ${clc.green(message)}`
+      `[${clc.red("HZQNB:")} ${clc.green("Nest")}] ${clc.green(
+        pid.toString()
+      )}  - ${clc.yellow(timestamp)}     ${clc.green("LOG")} [${clc.yellow(
+        context
+      )}] ${clc.green(message)}`
     )
   }
 }
