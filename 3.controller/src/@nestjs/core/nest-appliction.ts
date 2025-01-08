@@ -48,7 +48,14 @@ export class NestApplication {
             res: ExpressResponse,
             next: ExpressNextFunction
           ) => {
-            const result = method.call(controller, req, res, next)
+            const args = this.resolveParams(
+              controller,
+              methodName,
+              req,
+              res,
+              next
+            )
+            const result = method.call(controller, ...args)
             res.send(result)
           }
         )
@@ -59,6 +66,31 @@ export class NestApplication {
       }
       Logger.log(`Nest application successfully started`, "InstanceLoader")
     }
+  }
+  // 解析参数
+  private resolveParams(
+    instance: any,
+    methodName: string,
+    req: ExpressRequest,
+    res: ExpressResponse,
+    next: ExpressNextFunction
+  ) {
+    const paramsMetadata = Reflect.getMetadata(`params`, instance, methodName) || []
+    if (!Array.isArray(paramsMetadata)) {
+      return []
+    }
+    
+    return paramsMetadata
+      .sort((a, b) => a.parameterIndex - b.parameterIndex)
+      .map(({ key }) => {
+        switch (key) {
+          case "Request":
+          case "Req":
+            return req
+          default:
+            return null
+        }
+      })
   }
   // 启动HTTP服务器
   async listen(port) {

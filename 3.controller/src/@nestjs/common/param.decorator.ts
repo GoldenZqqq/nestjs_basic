@@ -7,8 +7,10 @@ export const createParamDecorator = (key: string) => {
     // 属性名 params: handleRequest 的值是一个数组，数组里应该放置数据，表示哪个位置使用的是哪个装饰器
     const existingParameters =
       Reflect.getMetadata(`params`, target, propertyKey) || []
-    existingParameters.push({ index: parameterIndex, key })
-    console.log("existingParameters", existingParameters)
+    existingParameters.push({ 
+      parameterIndex,
+      key
+    })
     Reflect.defineMetadata(`params`, existingParameters, target, propertyKey)
   }
 }
