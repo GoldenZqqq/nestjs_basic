@@ -1,6 +1,12 @@
 import "reflect-metadata"
 import { Logger } from "./logger"
-import express, { Express } from "express"
+import express, {
+  Express,
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+  NextFunction as ExpressNextFunction
+} from "express"
+import path from "path"
 
 export class NestApplication {
   // 在它的内部私有化一个Express实例
@@ -20,6 +26,38 @@ export class NestApplication {
       const prefix = Reflect.getMetadata("prefix", Controller) || "/"
       // 开始解析路由
       Logger.log(`${Controller.name} {${prefix}}`, "RoutesResolver")
+      const controllerPrototype = Reflect.getPrototypeOf(controller)
+      // 遍历控制器原型上的所有方法
+      for (const methodName of Object.getOwnPropertyNames(
+        controllerPrototype
+      )) {
+        const method = controllerPrototype[methodName]
+        // 取得此函数上绑定的方法名的元数据
+        const httpMethod = Reflect.getMetadata("method", method)
+        // 取得此函数上绑定的路径的元数据
+        const pathMetadata = Reflect.getMetadata("path", method)
+        // 如果方法名不存在，则不处理
+        if (!httpMethod) continue
+        // 拼出完整路由路径
+        const routePath = path.posix.join("/", prefix, pathMetadata)
+        // 将方法绑定到路由上，当客户端以httpMethod方法请求routePath路径的时候，会由对应的函数进行处理
+        this.app[httpMethod.toLowerCase()](
+          routePath,
+          (
+            req: ExpressRequest,
+            res: ExpressResponse,
+            next: ExpressNextFunction
+          ) => {
+            const result = method.call(controller, req, res, next)
+            res.send(result)
+          }
+        )
+        Logger.log(
+          `Mapped (${routePath}, ${httpMethod.toUpperCase()}) route`,
+          "RoutesResolver"
+        )
+      }
+      Logger.log(`Nest application successfully started`, "InstanceLoader")
     }
   }
   // 启动HTTP服务器
