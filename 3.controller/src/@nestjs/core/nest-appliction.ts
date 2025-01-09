@@ -79,10 +79,7 @@ export class NestApplication {
     next: ExpressNextFunction
   ) {
     const paramsMetadata =
-      Reflect.getMetadata(`params`, instance, methodName) || []
-    if (!Array.isArray(paramsMetadata)) {
-      return []
-    }
+      Reflect.getMetadata(`params`, instance, methodName) ?? []
 
     return paramsMetadata.map(({ key, data }) => {
       switch (key) {
@@ -97,6 +94,8 @@ export class NestApplication {
           return data ? req.session[data] : req.session
         case "Ip":
           return req.ip
+        case "Param":
+          return data ? req.params[data] : req.params
         default:
           return null
       }

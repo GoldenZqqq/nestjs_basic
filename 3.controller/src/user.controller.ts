@@ -6,7 +6,8 @@ import {
   Query,
   Headers,
   Session,
-  Ip
+  Ip,
+  Param
 } from "@nestjs/common"
 import { Request as ExpressRequest } from "express"
 
@@ -53,5 +54,20 @@ export class UserController {
   getUserIp(@Ip() ip: string) {
     console.log("ip", ip)
     return `ip: ${ip}`
+  }
+  @Get(":username/info/:age")
+  getUserNameInfo(
+    @Param() params,
+    @Param("username") username: string,
+    @Param("age") age: string
+  ) {
+    console.log("params", params)
+    console.log("username", username)
+    console.log("age", age)
+    return `age: ${age}`
+  }
+  @Get("star/ab*de")
+  handleWildcard() {
+    return `handleWildcard`
   }
 }
