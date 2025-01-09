@@ -14,6 +14,9 @@ export class NestApplication {
   constructor(protected readonly module) {
     Logger.log("Nest application successfully started", "NestApplication")
   }
+  use(middleware) {
+    this.app.use(middleware)
+  }
   // 初始化
   async init() {
     // 取出模块里所有的控制器，然后做好路由配置
@@ -75,22 +78,29 @@ export class NestApplication {
     res: ExpressResponse,
     next: ExpressNextFunction
   ) {
-    const paramsMetadata = Reflect.getMetadata(`params`, instance, methodName) || []
+    const paramsMetadata =
+      Reflect.getMetadata(`params`, instance, methodName) || []
     if (!Array.isArray(paramsMetadata)) {
       return []
     }
-    
-    return paramsMetadata
-      .sort((a, b) => a.parameterIndex - b.parameterIndex)
-      .map(({ key }) => {
-        switch (key) {
-          case "Request":
-          case "Req":
-            return req
-          default:
-            return null
-        }
-      })
+
+    return paramsMetadata.map(({ key, data }) => {
+      switch (key) {
+        case "Request":
+        case "Req":
+          return req
+        case "Query":
+          return data ? req.query[data] : req.query
+        case "Headers":
+          return data ? req.headers[data] : req.headers
+        case "Session":
+          return data ? req.session[data] : req.session
+        case "Ip":
+          return req.ip
+        default:
+          return null
+      }
+    })
   }
   // 启动HTTP服务器
   async listen(port) {
