@@ -1,15 +1,18 @@
 import {
   Controller,
   Get,
+  Post,
   Req,
   Request,
   Query,
   Headers,
   Session,
   Ip,
-  Param
+  Param,
+  Body,
+  Response
 } from "@nestjs/common"
-import { Request as ExpressRequest } from "express"
+import { Request as ExpressRequest, Response as ExpressResponse } from "express"
 
 @Controller("users")
 export class UserController {
@@ -70,4 +73,31 @@ export class UserController {
   handleWildcard() {
     return `handleWildcard`
   }
+  @Post("create")
+  createUser(@Body() createUserDto, @Body("username") username: string) {
+    console.log(`createUserDto: ${createUserDto}`)
+    console.log(`username: ${username}`)
+    return `user created`
+  }
+  @Get("response")
+  response(@Response() response: ExpressResponse) {
+    console.log("response", response)
+    response.send("send")
+    // response.json({ success: true })
+    return `response`
+  }
+  @Get("passthrough")
+  passthrough(@Response({ passthrough: true }) response: ExpressResponse) {
+    // 使用passthrough装饰器，则不会返回响应，只添加响应头
+    response.setHeader("key", "value")
+    // response.send("send")
+    // response.json({ success: true })
+    // 还是想返回一个值让Nest帮我们进行发送响应体操作
+    return `response`
+  }
 }
+/**
+ * 在使用Nest.js的时候，一般来说一个实体会定义两个类型，一个是dto，一个是interface
+ * dto 客户端向服务器提交的数据对象，比如说当用户注册的时候 { 用户名， 密码 }
+ * interface是接口类型，用于描述对象的结构，一般用于返回值
+ */
