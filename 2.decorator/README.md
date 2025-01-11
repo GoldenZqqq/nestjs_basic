@@ -25,30 +25,62 @@
 - 应用于类构造函数，用于监视、修改或替换类定义
 - 接收类的构造函数作为参数
 - 可以用来扩展类的属性和方法
+- 示例文件：
+  - `3.class_decorator_basic.ts`: 基础类装饰器示例
+  - `4.class_decorator_extend.ts`: 扩展类的属性和方法
+  - `5.class_decorator_constructor.ts`: 修改类的构造函数
+  - `13.class_decorator_property_defaults.ts`: 设置类属性默认值
 
 ### 方法装饰器
 - 应用于类的方法上
 - 可以用来监视、修改或者替换方法定义
 - 接收三个参数：目标对象、方法名、属性描述符
+- 示例文件：
+  - `6.method_decorator_logging.ts`: 方法调用日志记录
+  - `7.method_decorator_auth.ts`: 方法级别的权限验证
+  - `8.method_decorator_cache.ts`: 方法结果缓存
 
 ### 属性装饰器
 - 应用于类的属性上
 - 用于监视类的属性
 - 接收两个参数：目标对象和属性名
+- 示例文件：
+  - `9.property_decorator_validation.ts`: 属性验证
+  - `10.property_decorator_default_value.ts`: 设置属性默认值
 
 ### 参数装饰器
 - 应用于方法的参数上
 - 可以用来获取和验证方法参数
 - 接收三个参数：目标对象、方法名、参数索引
+- 示例文件：
+  - `11.parameter_decorator_validation.ts`: 参数验证示例
 
-### 访问符装饰器
-- 应用于访问器的属性描述符
-- 可以用来监视、修改或替换访问器的定义
-- 接收三个参数：目标对象、成员名、属性描述符
+## 基础示例
+- `1.basic_reflect_get_set.ts`: Reflect 基本操作示例
+- `2.reflect_metadata_usage.ts`: reflect-metadata 使用示例
+
+## 高级示例
+- `12.decorator_execution_order.ts`: 装饰器执行顺序演示
 
 ## 使用注意事项
 - 装饰器执行顺序：参数装饰器 -> 方法装饰器 -> 属性装饰器 -> 类装饰器
 - TypeScript中需要在tsconfig.json中启用experimentalDecorators选项
 - 装饰器不能用在声明文件(.d.ts)中
 - 同一个目标可以使用多个装饰器
+
+## 运行示例
+```bash
+# 安装依赖
+pnpm install
+
+# 运行特定示例
+ts-node [示例文件名].ts
+```
+
+## 推荐学习顺序
+1. 从基础示例开始：`1.basic_reflect_get_set.ts` 和 `2.reflect_metadata_usage.ts`
+2. 学习类装饰器：从 `3.class_decorator_basic.ts` 到 `5.class_decorator_constructor.ts`
+3. 掌握方法装饰器：`6.method_decorator_logging.ts` 到 `8.method_decorator_cache.ts`
+4. 了解属性和参数装饰器：`9.property_decorator_validation.ts` 到 `11.parameter_decorator_validation.ts`
+5. 最后学习高级概念：`12.decorator_execution_order.ts` 和 `13.class_decorator_property_defaults.ts`
 
