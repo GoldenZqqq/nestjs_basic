@@ -40,6 +40,13 @@ export class NestApplication {
         const httpMethod = Reflect.getMetadata("method", method)
         // 取得此函数上绑定的路径的元数据
         const pathMetadata = Reflect.getMetadata("path", method)
+        const redirectUrl = Reflect.getMetadata("redirectUrl", method)
+        const redirectStatusCode = Reflect.getMetadata(
+          "redirectStatusCode",
+          method
+        )
+        const statusCode = Reflect.getMetadata("statusCode", method)
+        const headers = Reflect.getMetadata("header", method)
         // 如果方法名不存在，则不处理
         if (!httpMethod) continue
         // 拼出完整路由路径
@@ -61,6 +68,18 @@ export class NestApplication {
             )
             // 执行路由处理函数，获取返回值
             const result = method.call(controller, ...args)
+            if (result?.url) {
+              return res.redirect(result.statusCode || 302, result.url)
+            }
+            // 判断如果需要重定向，则直接重定向到指定的redirectUrl
+            if (redirectUrl) {
+              return res.redirect(redirectStatusCode || 302, redirectUrl)
+            }
+            if (statusCode) {
+              res.statusCode = statusCode
+            } else if (httpMethod === "POST") {
+              res.statusCode = 201
+            }
             // 判断controller的methodName方法里有没有使用Response或Res装饰器，如果用任何一个则不发响应
             const responseMetadata = this.getResponseMetadata(
               controller,
@@ -68,6 +87,9 @@ export class NestApplication {
             )
             // 或者没有注入Response参数装饰器，或者注入了但是传递了passthrough参数，都会由Nest.js来返回响应
             if (!responseMetadata || responseMetadata?.data?.passthrough) {
+              headers.forEach(({ name, value }) => {
+                res.setHeader(name, value)
+              })
               // 把返回值序列化，然后返回给客户端
               res.send(result)
             }
@@ -86,7 +108,7 @@ export class NestApplication {
       Reflect.getMetadata(`params`, controller, methodName) ?? []
     return paramsMetadata
       .filter(Boolean)
-      .find(param => param.key === "Response" || param.key === "Res")
+      .find(param => ["Response", "Res", "Next"].includes(param.key))
   }
   // 解析参数
   private resolveParams(
@@ -119,6 +141,8 @@ export class NestApplication {
         case "Response":
         case "Res":
           return res
+        case "Next":
+          return next
         default:
           return null
       }

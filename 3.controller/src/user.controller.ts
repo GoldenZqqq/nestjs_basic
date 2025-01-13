@@ -2,6 +2,9 @@ import {
   Controller,
   Get,
   Post,
+  Redirect,
+  HttpCode,
+  Header,
   Req,
   Request,
   Query,
@@ -10,7 +13,8 @@ import {
   Ip,
   Param,
   Body,
-  Response
+  Response,
+  Next
 } from "@nestjs/common"
 import { Request as ExpressRequest, Response as ExpressResponse } from "express"
 
@@ -27,18 +31,21 @@ export class UserController {
     console.log("method", request.method)
     return "handleRequest"
   }
+
   @Get("query")
   handleQuery(@Query() query: any, @Query("id") id: string) {
     console.log("query", query)
     console.log("id", id)
     return `query id: ${id}`
   }
+
   @Get("headers")
   handleHeaders(@Headers() headers: any, @Headers("accept") accept: string) {
     console.log("headers", headers)
     console.log("accept", accept)
     return `accept: ${accept}`
   }
+
   @Get("session")
   handleSession(
     @Session() session: any,
@@ -53,11 +60,13 @@ export class UserController {
     }
     return `pageView: ${session.pageView}`
   }
+
   @Get("ip")
   getUserIp(@Ip() ip: string) {
     console.log("ip", ip)
     return `ip: ${ip}`
   }
+
   @Get(":username/info/:age")
   getUserNameInfo(
     @Param() params,
@@ -69,16 +78,22 @@ export class UserController {
     console.log("age", age)
     return `age: ${age}`
   }
+
   @Get("star/ab*de")
   handleWildcard() {
     return `handleWildcard`
   }
+
   @Post("create")
+  @HttpCode(200)
+  @Header("Cache-Control", "none") // 向客户端发送一个响应头
+  @Header("Content-Type", "application/json") // 向客户端发送一个响应头
   createUser(@Body() createUserDto, @Body("username") username: string) {
     console.log(`createUserDto: ${createUserDto}`)
     console.log(`username: ${username}`)
     return `user created`
   }
+
   @Get("response")
   response(@Response() response: ExpressResponse) {
     console.log("response", response)
@@ -86,6 +101,7 @@ export class UserController {
     // response.json({ success: true })
     return `response`
   }
+
   @Get("passthrough")
   passthrough(@Response({ passthrough: true }) response: ExpressResponse) {
     // 使用passthrough装饰器，则不会返回响应，只添加响应头
@@ -94,6 +110,21 @@ export class UserController {
     // response.json({ success: true })
     // 还是想返回一个值让Nest帮我们进行发送响应体操作
     return `response`
+  }
+
+  @Get("next")
+  next(@Next() next) {
+    console.log("next")
+    next()
+  }
+
+  @Get("/redirect")
+  @Redirect("/users/req", 301)
+  handleRedirect() {}
+
+  @Get("/redirect2")
+  handleRedirect2(@Query("version") version) {
+    return { url: `https://docs.nestjs.com/${version}/`, statusCode: 301 }
   }
 }
 /**
