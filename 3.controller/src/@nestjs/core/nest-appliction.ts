@@ -14,6 +14,13 @@ export class NestApplication {
   constructor(protected readonly module) {
     this.app.use(express.json()) // 用于把JSON格式的请求体对象放在req.body上
     this.app.use(express.urlencoded({ extended: true })) // 用于把form表单格式请求体对象放在req.body上
+    this.app.use((req, res, next) => {
+      req.user = {
+        name: "admin",
+        role: "admin"
+      }
+      next()
+    })
   }
   use(middleware) {
     this.app.use(middleware)
@@ -46,7 +53,7 @@ export class NestApplication {
           method
         )
         const statusCode = Reflect.getMetadata("statusCode", method)
-        const headers = Reflect.getMetadata("header", method)
+        const headers = Reflect.getMetadata("header", method) || []
         // 如果方法名不存在，则不处理
         if (!httpMethod) continue
         // 拼出完整路由路径
@@ -87,9 +94,11 @@ export class NestApplication {
             )
             // 或者没有注入Response参数装饰器，或者注入了但是传递了passthrough参数，都会由Nest.js来返回响应
             if (!responseMetadata || responseMetadata?.data?.passthrough) {
-              headers.forEach(({ name, value }) => {
-                res.setHeader(name, value)
-              })
+              if (headers && Array.isArray(headers)) {
+                headers.forEach(({ name, value }) => {
+                  res.setHeader(name, value)
+                })
+              }
               // 把返回值序列化，然后返回给客户端
               res.send(result)
             }
@@ -120,8 +129,19 @@ export class NestApplication {
   ) {
     const paramsMetadata =
       Reflect.getMetadata(`params`, instance, methodName) ?? []
+    
+    console.log('paramsMetadata:', paramsMetadata) // 添加调试日志
 
-    return paramsMetadata.map(({ key, data }) => {
+    return paramsMetadata.map(({ key, data, factory }) => {
+      console.log('Processing parameter:', { key, data, factory }) // 添加调试日志
+      const ctx = {
+        // 因为Nest不但支持http，还支持graphq1 微服务websocket
+        switchToHttp: () => ({
+          getRequest: () => req,
+          getResponse: () => res,
+          getNext: () => next
+        })
+      }
       switch (key) {
         case "Request":
         case "Req":
@@ -143,6 +163,10 @@ export class NestApplication {
           return res
         case "Next":
           return next
+        case "DecoratorFactory":
+          return factory(data, ctx)
+        case "User":
+          return data ? req.user?.[data] : req.user
         default:
           return null
       }

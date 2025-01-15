@@ -14,7 +14,8 @@ import {
   Param,
   Body,
   Response,
-  Next
+  Next,
+  User
 } from "@nestjs/common"
 import { Request as ExpressRequest, Response as ExpressResponse } from "express"
 
@@ -125,6 +126,13 @@ export class UserController {
   @Get("/redirect2")
   handleRedirect2(@Query("version") version) {
     return { url: `https://docs.nestjs.com/${version}/`, statusCode: 301 }
+  }
+
+  @Get("custom")
+  customParamDecorator(@User("role") role, @User() user) {
+    console.log("role", role)
+    console.log("user", user)
+    return user
   }
 }
 /**
