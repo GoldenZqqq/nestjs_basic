@@ -8,9 +8,5 @@ function log(value, context) {
 @log
 class Person {
   // @Reflect.metadata("metadataKey","metadataValue")
-  getName() {
-
-  }
-
-
+  getName() {}
 }
